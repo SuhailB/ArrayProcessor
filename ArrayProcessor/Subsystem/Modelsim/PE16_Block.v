@@ -1,4 +1,4 @@
-module PE16_Block #(parameter SIZE = 5)
+module PE16_Block #(parameter SIZE = 5, parameter LENGTH = 32)
 	(
 		input clk,
 		input reset,
@@ -43,7 +43,25 @@ wire[15:0] S1, S2;
 wire[15:0] DIA; 
 wire[15:0] DIB;
 
-reg[15:0] q0, q1;
+
+reg[15:0] q1_reg, q0_reg;
+wire[15:0] q0;
+wire[15:0] q1;
+
+
+assign q1 = count == 2? DOB : q1_reg;
+assign q0 = count == 66? q1 : q0_reg;
+
+always@(posedge clk) begin
+	if(!reset) begin
+		q0_reg = 0;
+		q1_reg = 0;
+	end
+	else begin
+		if(count==2) 	q1_reg	= DOB;
+		if(count==(2*LENGTH)+2)	q0_reg	= q1;
+	end
+end
 
 assign E1 = {	
 				DOA[14],DOA[13],DOA[12],Win[7],
@@ -121,10 +139,6 @@ assign Op = 	OpStart[0]	&	OpStart[1]	&	OpStart[2]	&	OpStart[3]
 		   &	OpStart[8]	&	OpStart[9]	&	OpStart[10]	&	OpStart[11]
 		   &	OpStart[12]	&	OpStart[13]	&	OpStart[14]	&	OpStart[15];
 
-always@(posedge clk) begin		   
-	if(count==2) 			q1	= DOB;
-	if(count==66)	q0	= q1;
-end
 
 BRAM  #(SIZE) regfile
 (
@@ -144,7 +158,7 @@ BRAM  #(SIZE) regfile
 generate
 genvar gi;
   for (gi=0; gi<16; gi=gi+1) begin : ALU
-	Serialized_ALU alu
+	Serialized_ALU #(LENGTH) alu 
 	(
 		clk,  
 		reset, 
@@ -160,212 +174,5 @@ genvar gi;
 	);
   end
 endgenerate
-// Serialized_ALU alu0
-// (
-	// clk,  
-	// reset, 
-	// alu_out[0],  
-	// DOA[0], 
-	// DOB[0],   
-	// ALU_Sel,	
-	// OpStart[0],		
-	// count,	
-	// wea
-// );
-// Serialized_ALU alu1
-// (
-	// clk,  
-	// reset, 
-	// alu_out[1],
-	// DOA[1], 
-	// DOB[1], 
-	// ALU_Sel,
-	// OpStart[1],		
-	// count,	
-	// wea
-// );
-// Serialized_ALU alu2
-// (
-	// clk,  
-	// reset, 
-	// alu_out[2], 
-	// DOA[2], 
-	// DOB[2], 
-	// ALU_Sel,
-	// OpStart[2],		
-	// count,	
-	// wea
-// );
-// Serialized_ALU alu3
-// (
-	// clk,  
-	// reset, 
-	// alu_out[3], 
-	// DOA[3], 
-	// DOB[3], 
-	// ALU_Sel,
-	// OpStart[3],		
-	// count,	
-	// wea
-// );
-
-// Serialized_ALU alu4
-// (
-	// clk,  
-	// reset, 
-	// alu_out[4], 
-	// DOA[4], 
-	// DOB[4], 
-	// ALU_Sel,
-	// OpStart[4],		
-	// count,	
-	// wea
-// );
-
-// Serialized_ALU alu5
-// (
-	// clk,  
-	// reset, 
-	// alu_out[5], 
-	// DOA[5], 
-	// DOB[5], 
-	// ALU_Sel,
-	// OpStart[5],		
-	// count,	
-	// wea
-// );
-
-// Serialized_ALU alu6
-// (
-	// clk,  
-	// reset, 
-	// alu_out[6], 
-	// DOA[6], 
-	// DOB[6], 
-	// ALU_Sel,
-	// OpStart[6],		
-	// count,	
-	// wea
-// );
-
-// Serialized_ALU alu7
-// (
-	// clk,  
-	// reset, 
-	// alu_out[7], 
-	// DOA[7], 
-	// DOB[7], 
-	// ALU_Sel,
-	// OpStart[7],		
-	// count,	
-	// wea
-// );
-
-// Serialized_ALU alu8
-// (
-	// clk,  
-	// reset, 
-	// alu_out[8], 
-	// DOA[8], 
-	// DOB[8], 
-	// ALU_Sel,
-	// OpStart[8],		
-	// count,	
-	// wea
-// );
-
-// Serialized_ALU alu9
-// (
-	// clk,  
-	// reset, 
-	// alu_out[9], 
-	// DOA[9], 
-	// DOB[9], 
-	// ALU_Sel,
-	// OpStart[9],		
-	// count,	
-	// wea
-// );
-
-// Serialized_ALU alu10
-// (
-	// clk,  
-	// reset, 
-	// alu_out[10], 
-	// DOA[10], 
-	// DOB[10], 
-	// ALU_Sel,
-	// OpStart[10],		
-	// count,	
-	// wea
-// );
-
-// Serialized_ALU alu11
-// (
-	// clk,  
-	// reset, 
-	// alu_out[11], 
-	// DOA[11], 
-	// DOB[11], 
-	// ALU_Sel,
-	// OpStart[11],		
-	// count,	
-	// wea
-// );
-
-// Serialized_ALU alu12
-// (
-	// clk,  
-	// reset, 
-	// alu_out[12], 
-	// DOA[12], 
-	// DOB[12], 
-	// ALU_Sel,
-	// OpStart[12],		
-	// count,	
-	// wea
-// );
-
-
-// Serialized_ALU alu13
-// (
-	// clk,  
-	// reset, 
-	// alu_out[13], 
-	// DOA[13], 
-	// DOB[13], 
-	// ALU_Sel,
-	// OpStart[13],		
-	// count,	
-	// wea
-// );
-
-
-// Serialized_ALU alu14
-// (
-	// clk,  
-	// reset, 
-	// alu_out[14], 
-	// DOA[14], 
-	// DOB[14], 
-	// ALU_Sel,
-	// OpStart[14],		
-	// count,	
-	// wea
-// );
-
-
-// Serialized_ALU alu15
-// (
-	// clk,  
-	// reset, 
-	// alu_out[15], 
-	// DOA[15], 
-	// DOB[15], 
-	// ALU_Sel,
-	// OpStart[15],		
-	// count,	
-	// wea
-// );
 
 endmodule

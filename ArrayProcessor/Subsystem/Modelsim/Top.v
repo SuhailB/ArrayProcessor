@@ -73,7 +73,7 @@ genvar gi;
 
   for (gi=0; gi<SIZE*SIZE; gi=gi+1) begin : BLOCK
 	
-	PE16_Block #(SIZE) block 
+	PE16_Block #(SIZE, LENGTH) block 
 	(
 		clk,
 		reset,

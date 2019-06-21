@@ -10,11 +10,11 @@ module Serialized_ALU #(parameter LENGTH = 32)
 	OpStart,	//signals sent to or from controller
 	count,		//signals sent to or from controller
 	reg_write,	//signals sent to or from controller
-	q0_var,
-	q1_var
+	q0,
+	q1
 );
-input q0_var, q1_var;
-input clk, reset, rs1_d, rs2_d;
+
+input clk, reset, rs1_d, rs2_d, q0, q1;
 input[3:0] ALU_Sel;
 input[6:0] count;
 input reg_write;
@@ -28,8 +28,6 @@ always @(posedge clk)
 begin	
 	if (reset == 0) 
 	begin
-		// q0_var 			= 0;
-		// q1_var			= 0;
 		NoOp 			= 0;
 		OpStart			= 1'hz;
 		state 			= 2'h1;
@@ -47,20 +45,19 @@ begin
 				NoOp 	= 0;
 				state 	= 1;
 			end
-				
 			2:	begin
 			
-				if		(q1_var==1 && q0_var==0) begin
+				if		(q1==1 && q0==0) begin
 					state 			= 1;
 					NoOp 			= 0;
 					OpStart			= 0;
 				end
-				else if	(q1_var==0 && q0_var==1) begin
+				else if	(q1==0 && q0==1) begin
 					state 			= 0;
 					NoOp 			= 0;
 					OpStart			= 0;
 				end
-				else if	(q1_var==q0_var) begin
+				else if	(q1==q0) begin
 					state 			= 0;
 					NoOp 			= 1;
 					if(count==2)	OpStart	= 1;
@@ -81,7 +78,7 @@ always@(negedge clk) begin
 		rd_d			= 0;
 		carry_borrow	= 0;
 	end
-	if(count==2*LENGTH+2) carry_borrow 	= 0;
+	if(count==(2*LENGTH)+2) carry_borrow 	= 0;
 	case(state)
 		0: begin
 			if(reg_write && !NoOp) begin
