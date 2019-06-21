@@ -1,0 +1,4 @@
+Ri(read) and ALU(writeIN1)
+Rj(read) and ALU(writeIN2)
+ALU(alu_out_en) and ALU(opControl)
+ALU(read) and Ri(write)
