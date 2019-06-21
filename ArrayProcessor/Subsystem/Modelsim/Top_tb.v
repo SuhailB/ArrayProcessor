@@ -25,7 +25,7 @@ begin
 RegAddr = 'h20;
 PE_Addr = 'h271;
 // instruction = 32'h00241800;
-instruction = 32'b000111_00001_00100_00011_00000000000;
+instruction = 32'b000000_00001_00100_00011_00000000000;
 reset = 0; 
 start = 0;//0
 #10000 
