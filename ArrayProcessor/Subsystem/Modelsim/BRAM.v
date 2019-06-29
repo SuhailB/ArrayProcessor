@@ -1,6 +1,6 @@
 // Simple Dual-Port Block RAM with One Clock
 // File: simple_dual_one_clock.v
-module BRAM  #(parameter SIZE = 5)
+module BRAM  #(parameter SIZE = 5, parameter MAX_WORD_LENGTH = 32, parameter RAM_SIZE = MAX_WORD_LENGTH*32-1)
 	(	
 		clk,
 		reset,
@@ -19,7 +19,7 @@ input[SIZE-1:0] id;
 input [9:0] addra,addrb;
 input [15:0] dia, dib;
 output reg [15:0] doa,dob;
-reg[159:0] ram[15:0] ;
+reg[RAM_SIZE:0] ram[15:0] ;
 integer i;
 
 always @(posedge clk) 

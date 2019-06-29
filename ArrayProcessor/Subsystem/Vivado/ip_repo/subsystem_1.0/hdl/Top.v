@@ -1,9 +1,10 @@
-module Top #(parameter SIZE = 4)
+module Top #(parameter SIZE = 4, parameter MAX_WORD_LENGTH = 32)
 		(
 			input clk,
 			input reset,
 			input[31:0] instruction,
 			input start,
+			input[5:0] LENGTH,
 			input[SIZE-1:0] PE_Addr,
 			input[9:0] RegAddr,
 			output[15:0] data
@@ -23,6 +24,7 @@ wire finish_flag;
 
 wire east, west, south, north; //update
 
+wire[1:0] state;
 
 wire[7:0] EtoW[SIZE*SIZE-1:0];
 wire[7:0] WtoE[SIZE*SIZE-1:0];
@@ -41,7 +43,9 @@ for(i=0; i<SIZE*SIZE; i = i+1) begin
 end
 end
 
-Controller FSM
+
+
+Controller #(MAX_WORD_LENGTH) FSM
 (
 	clk, 
 	reset,
@@ -60,7 +64,10 @@ Controller FSM
 	east,	
 	west,	
 	south,	
-	north	
+	north,
+	state,
+	LENGTH,
+	ram_init
 );
 
 
@@ -71,7 +78,7 @@ genvar gi;
 
   for (gi=0; gi<SIZE*SIZE; gi=gi+1) begin : BLOCK
 	
-	PE16_Block #(SIZE) block 
+	PE16_Block #(SIZE, MAX_WORD_LENGTH) block 
 	(
 		clk,
 		reset,
@@ -81,7 +88,8 @@ genvar gi;
 		addrb,
 		ALU_Sel,
 		count,
-		reset==0 && addr<128 ? DIA : reset==0 ? DIA*gi : 16'hzzzz,
+		ram_init? DIA : 16'hzzzz,
+		// reset==0 && addr<128 ? DIA : reset==0 ? ~(DIA*gi) : 16'hzzzz,
 		DOA[gi],
 		DOB[gi],
 		Op[gi],
@@ -100,7 +108,10 @@ genvar gi;
 		NtoS[gi],
 		StoN[gi],
 		
-		gi
+		gi,
+		state,
+		LENGTH,
+		ram_init
 	);
   end
 endgenerate

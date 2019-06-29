@@ -4,7 +4,8 @@
 	module subsystem_v1_0 #
 	(
 		// Users to add parameters here
-
+        parameter integer SIZE = 4,
+        parameter integer MAX_WORD_LENGTH = 32,
 		// User parameters ends
 		// Do not modify the parameters beyond this line
 
@@ -43,8 +44,11 @@
 		input wire  s00_axi_rready
 	);
 	
+	
 // Instantiation of Axi Bus Interface S00_AXI
 	subsystem_v1_0_S00_AXI # ( 
+	    .SIZE(SIZE),
+	    .MAX_WORD_LENGTH(MAX_WORD_LENGTH),
 		.C_S_AXI_DATA_WIDTH(C_S00_AXI_DATA_WIDTH),
 		.C_S_AXI_ADDR_WIDTH(C_S00_AXI_ADDR_WIDTH)
 	) subsystem_v1_0_S00_AXI_inst (
@@ -70,7 +74,6 @@
 		.S_AXI_RVALID(s00_axi_rvalid),
 		.S_AXI_RREADY(s00_axi_rready)
 	);
-
 
 	// Add user logic here
 

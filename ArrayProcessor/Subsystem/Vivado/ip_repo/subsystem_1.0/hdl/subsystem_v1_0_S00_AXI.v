@@ -4,7 +4,8 @@
 	module subsystem_v1_0_S00_AXI #
 	(
 		// Users to add parameters here
-
+        parameter integer SIZE = 4,
+        parameter integer MAX_WORD_LENGTH = 32,
 		// User parameters ends
 		// Do not modify the parameters beyond this line
 
@@ -391,14 +392,15 @@
 	end    
 
 	// Add user logic here
-    Top #(25) top(    
-               S_AXI_ACLK,
-               slv_reg1[0],
-               slv_reg0,
-               slv_reg1[1],
-               slv_reg2[15+16:16],
-               slv_reg2[9:0],
-               data
+    Top #(SIZE,MAX_WORD_LENGTH) top(    
+               S_AXI_ACLK,          //clk
+               slv_reg1[0],         //reset
+               slv_reg0,            //instruction
+               slv_reg1[1],         //start
+               slv_reg1[29:24],       //LENGTH
+               slv_reg2[15+16:16],  //PE_ADDR
+               slv_reg2[9:0],       //REG_ADDR
+               data                 //data
            );
 	// User logic ends
 

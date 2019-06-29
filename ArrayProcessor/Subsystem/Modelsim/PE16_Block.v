@@ -1,4 +1,4 @@
-module PE16_Block #(parameter SIZE = 5, parameter LENGTH = 32)
+module PE16_Block #(parameter SIZE = 5, parameter MAX_WORD_LENGTH = 32)
 	(
 		input clk,
 		input reset,
@@ -27,8 +27,10 @@ module PE16_Block #(parameter SIZE = 5, parameter LENGTH = 32)
 		output[7:0] Nout,
 		output[7:0] Sout,
 		
-		input[SIZE-1:0] ID
-		
+		input[SIZE-1:0] ID,
+		input[1:0] state,
+		input[5:0] LENGTH,
+		input ram_init
 	);
 
 
@@ -48,18 +50,20 @@ reg[15:0] q1_reg, q0_reg;
 wire[15:0] q0;
 wire[15:0] q1;
 
+assign q0 = state != 2? q0_reg : 16'hzzzz;
+assign q1 = state != 2? q1_reg : 16'hzzzz;
 
-assign q1 = count == 2? DOB : q1_reg;
-assign q0 = count == 66? q1 : q0_reg;
+// assign q1 = count == 2? DOB : q1_reg;
+// assign q0 = count == (2*LENGTH)+2? q1 : q0_reg;
 
-always@(posedge clk) begin
+always@(negedge clk) begin
 	if(!reset) begin
 		q0_reg = 0;
 		q1_reg = 0;
 	end
 	else begin
-		if(count==2) 	q1_reg	= DOB;
-		if(count==(2*LENGTH)+2)	q0_reg	= q1;
+		if(count==2 && state != 2) 	q1_reg	<= DOB;
+		if(count==2 && state != 2)	q0_reg	<= q1_reg;
 	end
 end
 
@@ -130,7 +134,7 @@ assign Sout = {DOA[15] , DOA[14] , DOA[13] , DOA[12] , DOB[15] , DOB[14] , DOB[1
 
 
 //update
-assign DIA = !reset ? BRAM_IN : east ? E1 : west ? W1 : south ? S1 : north ? N1 : alu_out ; //: north ? N1 : south ? S1 : 0;
+assign DIA = ram_init ? BRAM_IN : east ? E1 : west ? W1 : south ? S1 : north ? N1 : alu_out ; //: north ? N1 : south ? S1 : 0;
 assign DIB = east ?  E2 : west ? W2 : south ? S2 : north ? N2 : 16'hzzzz;
 
 
@@ -140,7 +144,7 @@ assign Op = 	OpStart[0]	&	OpStart[1]	&	OpStart[2]	&	OpStart[3]
 		   &	OpStart[12]	&	OpStart[13]	&	OpStart[14]	&	OpStart[15];
 
 
-BRAM  #(SIZE) regfile
+BRAM  #(SIZE, MAX_WORD_LENGTH) regfile
 (
 	clk,
 	reset,
@@ -158,7 +162,7 @@ BRAM  #(SIZE) regfile
 generate
 genvar gi;
   for (gi=0; gi<16; gi=gi+1) begin : ALU
-	Serialized_ALU #(LENGTH) alu 
+	Serialized_ALU alu 
 	(
 		clk,  
 		reset, 
@@ -170,7 +174,9 @@ genvar gi;
 		count,	
 		wea,
 		q0[gi],
-		q1[gi]
+		q1[gi],
+		LENGTH
+		
 	);
   end
 endgenerate
